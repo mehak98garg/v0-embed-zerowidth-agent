@@ -17,7 +17,7 @@ const chatConfig = {
   header: {
     title: "Chat with me",
     description:
-      "Greetings, I am a draft clone of ELIZA running the DOCTOR script. HOW DO YOU DO. PLEASE STATE YOUR PROBLEM.",
+      "Mehak is a Product Designer based in San Francisco. She is currently pursuing her Master's in Interaction Design at California College of the Arts. I am an AI assistant built to help you get to know her more.",
   },
   suggestedPromptsTitle: "Here are some suggested prompts.",
   suggestedPrompts: [
