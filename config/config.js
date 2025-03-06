@@ -26,7 +26,7 @@ const chatConfig = {
     "Where did she study, and what degree(s) does she hold?",
   ],
   chatInputPlaceholder: "Chat with this agent...",
-  maxChatHeight: 200,
+  maxChatHeight: 400,
 };
 
 export default chatConfig;
