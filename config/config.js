@@ -15,15 +15,15 @@ const chatConfig = {
   flowURL:
     "https://api.zerowidth.ai/v1/process/jEtdtYF8iVXc3BdCVg0b/lD0dqGu2Gz2jNaGRXFVr",
   header: {
-    title: "Chat with me",
+    title: "Chat with Mehak.ai",
     description:
-      "Mehak is a Product Designer based in San Francisco. She is currently pursuing her Master's in Interaction Design at California College of the Arts. I am an AI assistant built to help you get to know her more.",
+      "I am an AI assistant built to help you get to know Mehak",
   },
   suggestedPromptsTitle: "Here are some suggested prompts.",
   suggestedPrompts: [
-    "What accomplishments from her past positions is she most proud of?",
-    "Does she prefer to work within a team? Is she more of a leader or a collaborator?",
-    "Where did she study, and what degree(s) does she hold?",
+    "What accomplishments from yout past positions are you most proud of?",
+    "Do you prefer to work within a team? Are you more of a leader or a collaborator?",
+    "Where did you study, and what degree(s) do you hold?",
   ],
   chatInputPlaceholder: "Chat with this agent...",
   maxChatHeight: 400,
