@@ -14,22 +14,27 @@ const chatConfig = {
   ],
 
   chatInputPlaceholder: "Chat with this agent...",
-  maxChatHeight: 480,
+  maxChatHeight: 400, // Reduced from 480px
 
   // Show all prompts at once (no rotation)
   showAllPrompts: true,
   promptsClickable: true,
   rotatePrompts: false,
 
+  // Layout settings to prevent empty space
+  compactLayout: true,
+  removeEmptySpace: true,
+
   // Styling configuration
   styling: {
-    height: 480,
+    height: 400, // Reduced height
+    minHeight: 400,
     borderRadius: 4,
     primaryColor: "#242424",
     fontFamily: "Poppins",
     titleFontFamily: "Literata",
-    padding: 24,
-    promptsInputGap: 16,
+    padding: 16, // Reduced padding
+    promptsInputGap: 12, // Smaller gap
   },
 
   // Send button configuration
@@ -44,21 +49,30 @@ const chatConfig = {
   customStyles: {
     headerTitle: {
       fontFamily: "'Literata', serif",
-      fontSize: "1.5rem",
+      fontSize: "1.25rem", // Slightly smaller
       fontWeight: "600",
       color: "#ffffff"
     },
     
     header: {
       backgroundColor: "#242424",
-      padding: "24px",
+      padding: "16px", // Reduced padding
       borderRadius: "4px 4px 0 0"
     },
     
     widget: {
       borderRadius: "4px",
-      height: "480px",
-      maxHeight: "480px",
+      height: "400px", // Fixed smaller height
+      maxHeight: "400px",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column"
+    },
+    
+    chatArea: {
+      flex: "1", // Take available space
+      padding: "16px",
+      backgroundColor: "#ffffff",
       overflow: "hidden"
     },
     
@@ -66,18 +80,19 @@ const chatConfig = {
       backgroundColor: "#e9ecef",
       borderRadius: "4px",
       padding: "12px 16px",
-      marginBottom: "8px"
+      marginBottom: "16px"
     },
 
     promptsContainer: {
       display: "flex",
       flexDirection: "column",
       gap: "8px",
-      marginBottom: "16px"
+      marginTop: "auto", // Push to bottom
+      marginBottom: "12px"
     },
 
     promptButton: {
-      padding: "12px 16px",
+      padding: "10px 12px",
       backgroundColor: "#f8f9fa",
       border: "1px solid #e9ecef",
       borderRadius: "4px",
