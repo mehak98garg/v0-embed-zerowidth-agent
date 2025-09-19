@@ -14,93 +14,140 @@ const chatConfig = {
   ],
 
   chatInputPlaceholder: "Chat with this agent...",
-  maxChatHeight: 400, // Reduced from 480px
-
-  // Show all prompts at once (no rotation)
+  
+  // Match Lovable's responsive design
+  maxChatHeight: "auto", // Let it size naturally
+  
+  // Display all prompts at once
   showAllPrompts: true,
   promptsClickable: true,
   rotatePrompts: false,
+  
+  // Remove empty space issues
+  compactMode: true,
+  autoHeight: true,
 
-  // Layout settings to prevent empty space
-  compactLayout: true,
-  removeEmptySpace: true,
-
-  // Styling configuration
-  styling: {
-    height: 400, // Reduced height
-    minHeight: 400,
-    borderRadius: 4,
-    primaryColor: "#242424",
-    fontFamily: "Poppins",
-    titleFontFamily: "Literata",
-    padding: 16, // Reduced padding
-    promptsInputGap: 12, // Smaller gap
+  // Responsive breakpoints matching Lovable specs
+  responsive: {
+    mobile: {
+      maxWidth: 768,
+      margin: "16px",
+      fullWidth: true
+    },
+    tablet: {
+      minWidth: 768,
+      maxWidth: 1024,
+      width: "600px",
+      centered: true
+    },
+    desktop: {
+      minWidth: 1024,
+      width: "1040px",
+      maxWidth: "1040px",
+      centered: true
+    }
   },
 
-  // Send button configuration
-  sendButton: {
+  // Clean styling to match Lovable design
+  theme: {
+    borderRadius: "4px",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+    
+    colors: {
+      primary: "#242424",
+      background: "#ffffff",
+      card: "#f8f9fa",
+      border: "#e2e8f0",
+      text: "#1a1a1a",
+      muted: "#6b7280"
+    },
+    
+    spacing: {
+      padding: "1rem",
+      gap: "0.5rem",
+      headerPadding: "1.5rem"
+    }
+  },
+
+  // Header styling with Literata font
+  headerStyle: {
     backgroundColor: "#242424",
-    iconColor: "#ffffff",
-    iconType: "arrow-up",
-    borderRadius: 4
+    color: "#ffffff",
+    fontFamily: "'Literata', serif",
+    fontSize: "1.25rem",
+    fontWeight: "600",
+    padding: "1.5rem",
+    borderRadius: "4px 4px 0 0"
   },
 
-  // Custom CSS styles
-  customStyles: {
-    headerTitle: {
-      fontFamily: "'Literata', serif",
-      fontSize: "1.25rem", // Slightly smaller
-      fontWeight: "600",
-      color: "#ffffff"
-    },
-    
-    header: {
-      backgroundColor: "#242424",
-      padding: "16px", // Reduced padding
-      borderRadius: "4px 4px 0 0"
-    },
-    
-    widget: {
+  // Message styling
+  messageStyle: {
+    ai: {
+      backgroundColor: "#f1f5f9",
       borderRadius: "4px",
-      height: "400px", // Fixed smaller height
-      maxHeight: "400px",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column"
-    },
-    
-    chatArea: {
-      flex: "1", // Take available space
-      padding: "16px",
-      backgroundColor: "#ffffff",
-      overflow: "hidden"
-    },
-    
-    aiMessage: {
-      backgroundColor: "#e9ecef",
-      borderRadius: "4px",
-      padding: "12px 16px",
-      marginBottom: "16px"
-    },
+      padding: "0.75rem 1rem",
+      marginBottom: "0.5rem",
+      maxWidth: "100%"
+    }
+  },
 
-    promptsContainer: {
+  // Prompts styling
+  promptsStyle: {
+    container: {
       display: "flex",
       flexDirection: "column",
-      gap: "8px",
-      marginTop: "auto", // Push to bottom
-      marginBottom: "12px"
+      gap: "0.5rem",
+      padding: "1rem",
+      marginBottom: "0.5rem"
     },
-
-    promptButton: {
-      padding: "10px 12px",
+    button: {
       backgroundColor: "#f8f9fa",
-      border: "1px solid #e9ecef",
+      border: "1px solid #e2e8f0",
       borderRadius: "4px",
+      padding: "0.75rem 1rem",
+      fontSize: "0.875rem",
+      textAlign: "left",
       cursor: "pointer",
-      fontSize: "14px",
-      textAlign: "left"
+      transition: "all 0.2s",
+      hover: {
+        backgroundColor: "#f1f5f9",
+        borderColor: "#cbd5e1"
+      }
     }
+  },
+
+  // Input area styling
+  inputStyle: {
+    container: {
+      padding: "1rem",
+      borderTop: "1px solid #e2e8f0"
+    },
+    input: {
+      borderRadius: "4px",
+      border: "1px solid #e2e8f0",
+      padding: "0.75rem 1rem",
+      fontSize: "0.875rem"
+    },
+    sendButton: {
+      backgroundColor: "#242424",
+      color: "#ffffff",
+      borderRadius: "4px",
+      padding: "0.75rem 1rem",
+      border: "none",
+      cursor: "pointer"
+    }
+  },
+
+  // Layout configuration
+  layout: {
+    flexDirection: "column",
+    height: "auto",
+    minHeight: "400px",
+    maxHeight: "80vh",
+    overflow: "hidden"
   }
 };
+
+export default chatConfig;
 
 export default chatConfig;
