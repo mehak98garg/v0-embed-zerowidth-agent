@@ -5,14 +5,12 @@ const chatConfig = {
     title: "Chat with Mehak.ai",
     description: "I am an AI assistant built to help you get to know Mehak",
   },
-
   suggestedPromptsTitle: "Here are some suggested prompts.",
   suggestedPrompts: [
     "What accomplishments from your past positions are you most proud of?",
     "Do you prefer to work within a team? Are you more of a leader or a collaborator?",
     "Where did you study, and what degree(s) do you hold?",
   ],
-
   chatInputPlaceholder: "Chat with this agent...",
   
   // Match Lovable's responsive design
@@ -26,7 +24,6 @@ const chatConfig = {
   // Remove empty space issues
   compactMode: true,
   autoHeight: true,
-
   // Responsive breakpoints matching Lovable specs
   responsive: {
     mobile: {
@@ -47,7 +44,6 @@ const chatConfig = {
       centered: true
     }
   },
-
   // Clean styling to match Lovable design
   theme: {
     borderRadius: "4px",
@@ -68,7 +64,6 @@ const chatConfig = {
       headerPadding: "1.5rem"
     }
   },
-
   // Header styling with Literata font
   headerStyle: {
     backgroundColor: "#242424",
@@ -79,7 +74,6 @@ const chatConfig = {
     padding: "1.5rem",
     borderRadius: "4px 4px 0 0"
   },
-
   // Message styling
   messageStyle: {
     ai: {
@@ -90,7 +84,6 @@ const chatConfig = {
       maxWidth: "100%"
     }
   },
-
   // Prompts styling
   promptsStyle: {
     container: {
@@ -115,7 +108,6 @@ const chatConfig = {
       }
     }
   },
-
   // Input area styling
   inputStyle: {
     container: {
@@ -137,7 +129,6 @@ const chatConfig = {
       cursor: "pointer"
     }
   },
-
   // Layout configuration
   layout: {
     flexDirection: "column",
@@ -147,7 +138,5 @@ const chatConfig = {
     overflow: "hidden"
   }
 };
-
-export default chatConfig;
 
 export default chatConfig;
