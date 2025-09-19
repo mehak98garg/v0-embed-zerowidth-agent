@@ -2,7 +2,7 @@
 // Chat Agent with Modern Mehak.ai Design (React + Vercel)
 //
 // Updated to match the lovable design with dark header, online status,
-// rotating prompts, and modern styling
+// rotating prompts, and modern styling with all requested changes
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -184,7 +184,7 @@ export default function AgentComponent() {
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
-        boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+        boxShadow: "none", // Removed drop shadow
       }}
     >
       {/* Modern Header with Online Status */}
@@ -200,10 +200,10 @@ export default function AgentComponent() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div>
             <h2 style={{ 
-              fontSize: "18px", 
-              fontWeight: "600", 
+              fontSize: "20px", 
+              fontWeight: "300", 
               margin: "0",
-              fontFamily: "Georgia, serif"
+              fontFamily: "Poppins, sans-serif"
             }}>
               {chatConfig.header.title}
             </h2>
@@ -212,7 +212,7 @@ export default function AgentComponent() {
                 display: "flex", 
                 alignItems: "center", 
                 gap: "8px", 
-                marginTop: "4px" 
+                marginTop: "12px" 
               }}>
                 <div style={{
                   width: "8px",
@@ -375,7 +375,7 @@ export default function AgentComponent() {
       {/* Input Area */}
       <div style={{ 
         borderTop: "1px solid #E0E0E0", 
-        padding: "24px" 
+        padding: "14px" 
       }}>
         <form onSubmit={handleSubmit} style={{ 
           display: "flex", 
@@ -398,6 +398,9 @@ export default function AgentComponent() {
                 outline: "none",
                 backgroundColor: chatConfig.styling?.inputBackground || "#FFFFFF",
                 transition: "border-color 0.2s ease",
+                textAlign: "right", // Right align the input text
+                paddingRight: "16px", // Ensure proper spacing
+                boxSizing: "border-box", // Prevent overlapping
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "#007BFF";
@@ -418,7 +421,7 @@ export default function AgentComponent() {
               justifyContent: "center",
               backgroundColor: isSubmitHovered ? 
                 (chatConfig.styling?.buttonHoverBackground || "#007BFF") : 
-                (chatConfig.styling?.buttonBackground || "#2D2D2D"),
+                (chatConfig.styling?.buttonBackground || "#242424"),
               color: "#FFFFFF",
               border: "none",
               borderRadius: "8px",
@@ -426,6 +429,8 @@ export default function AgentComponent() {
               cursor: (!message.trim() || isLoading) ? "default" : "pointer",
               transition: "all 0.2s ease",
               opacity: (!message.trim() || isLoading) ? "0.5" : "1",
+              minWidth: "48px", // Ensure button has minimum width
+              flexShrink: 0, // Prevent button from shrinking
             }}
           >
             <svg
@@ -461,6 +466,8 @@ export default function AgentComponent() {
 
       {/* Styles */}
       <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        
         .chat-container::-webkit-scrollbar {
           width: 6px;
         }
