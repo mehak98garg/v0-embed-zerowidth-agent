@@ -2,7 +2,7 @@ const chatConfig = {
   flowURL: "https://api.zerowidth.ai/v1/process/jEtdtYF8iVXc3BdCVg0b/lD0dqGu2Gz2jNaGRXFVr",
   
   header: {
-    title: "Chat with Mehak.ai", // Use Literata font for this
+    title: "Chat with Mehak.ai",
     description: "I am an AI assistant built to help you get to know Mehak",
   },
 
@@ -14,11 +14,34 @@ const chatConfig = {
   ],
 
   chatInputPlaceholder: "Chat with this agent...",
-  maxChatHeight: 480, // Fixed height
+  maxChatHeight: 480,
 
-  // Custom styling overrides
+  // Show all prompts at once (no rotation)
+  showAllPrompts: true,
+  promptsClickable: true,
+  rotatePrompts: false,
+
+  // Styling configuration
+  styling: {
+    height: 480,
+    borderRadius: 4,
+    primaryColor: "#242424",
+    fontFamily: "Poppins",
+    titleFontFamily: "Literata",
+    padding: 24,
+    promptsInputGap: 16,
+  },
+
+  // Send button configuration
+  sendButton: {
+    backgroundColor: "#242424",
+    iconColor: "#ffffff",
+    iconType: "arrow-up",
+    borderRadius: 4
+  },
+
+  // Custom CSS styles
   customStyles: {
-    // Header title should use Literata font
     headerTitle: {
       fontFamily: "'Literata', serif",
       fontSize: "1.5rem",
@@ -26,29 +49,12 @@ const chatConfig = {
       color: "#ffffff"
     },
     
-    // Header container
     header: {
       backgroundColor: "#242424",
       padding: "24px",
       borderRadius: "4px 4px 0 0"
     },
     
-    // Send button styling
-    sendButton: {
-      backgroundColor: "#242424",
-      borderRadius: "4px",
-      padding: "8px 12px",
-      border: "none",
-      cursor: "pointer"
-    },
-    
-    // Send button arrow (white)
-    sendButtonIcon: {
-      color: "#ffffff",
-      fontSize: "16px"
-    },
-    
-    // Overall widget
     widget: {
       borderRadius: "4px",
       height: "480px",
@@ -56,12 +62,28 @@ const chatConfig = {
       overflow: "hidden"
     },
     
-    // AI message bubble
     aiMessage: {
       backgroundColor: "#e9ecef",
       borderRadius: "4px",
       padding: "12px 16px",
       marginBottom: "8px"
+    },
+
+    promptsContainer: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "8px",
+      marginBottom: "16px"
+    },
+
+    promptButton: {
+      padding: "12px 16px",
+      backgroundColor: "#f8f9fa",
+      border: "1px solid #e9ecef",
+      borderRadius: "4px",
+      cursor: "pointer",
+      fontSize: "14px",
+      textAlign: "left"
     }
   }
 };
