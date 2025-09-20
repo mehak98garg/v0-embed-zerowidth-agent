@@ -152,7 +152,7 @@ export default function AgentComponent() {
       color: chatConfig.styling?.userBubbleTextColor || "#FFFFFF",
       padding: "12px 16px",
       borderRadius: "18px 18px 4px 18px",
-      margin: "4px 24px 4px 0", // Added 24px right margin for spacing from edge
+      margin: "4px 24px 4px 0", // 24px gap from right edge of container
       maxWidth: "80%",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
