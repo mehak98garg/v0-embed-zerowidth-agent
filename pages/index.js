@@ -200,7 +200,7 @@ export default function AgentComponent() {
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <div>
             <h2 style={{ 
-              fontSize: "20px", 
+              fontSize: "16px", 
               fontWeight: "300", 
               margin: "0",
               fontFamily: "Poppins, sans-serif"
@@ -217,7 +217,7 @@ export default function AgentComponent() {
                 <div style={{
                   width: "8px",
                   height: "8px",
-                  backgroundColor: "#22C55E",
+                  backgroundColor: "#E6FF99",
                   borderRadius: "50%",
                 }}></div>
                 <span style={{ 
@@ -398,8 +398,8 @@ export default function AgentComponent() {
                 outline: "none",
                 backgroundColor: chatConfig.styling?.inputBackground || "#FFFFFF",
                 transition: "border-color 0.2s ease",
-                textAlign: "right", // Right align the input text
-                paddingRight: "16px", // Ensure proper spacing
+                textAlign: "left", // Left align the input text
+                paddingLeft: "16px", // Ensure proper spacing
                 boxSizing: "border-box", // Prevent overlapping
               }}
               onFocus={(e) => {
@@ -420,9 +420,9 @@ export default function AgentComponent() {
               alignItems: "center",
               justifyContent: "center",
               backgroundColor: isSubmitHovered ? 
-                (chatConfig.styling?.buttonHoverBackground || "#007BFF") : 
+                (chatConfig.styling?.buttonHoverBackground || "#F4FFD0") : 
                 (chatConfig.styling?.buttonBackground || "#242424"),
-              color: "#FFFFFF",
+              color: isSubmitHovered ? "#000000" : "#FFFFFF", // Change text color on hover
               border: "none",
               borderRadius: "8px",
               padding: "12px",
@@ -431,6 +431,7 @@ export default function AgentComponent() {
               opacity: (!message.trim() || isLoading) ? "0.5" : "1",
               minWidth: "48px", // Ensure button has minimum width
               flexShrink: 0, // Prevent button from shrinking
+              height: "48px", // Set explicit height for better centering
             }}
           >
             <svg
