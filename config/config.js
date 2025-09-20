@@ -32,8 +32,8 @@ const chatConfig = {
     
     // Chat area styling
     chatBackground: "#F9F9F9", // Light gray background for chat area
-    userBubbleBackground: "#007BFF", // Blue background for user messages
-    userBubbleTextColor: "#FFFFFF", // White text for user messages
+    userBubbleBackground: "#F4FFD0", // Light green background for user messages
+    userBubbleTextColor: "#000000", // Black text for user messages
     aiBubbleBackground: "#E5E5E5", // Light gray for AI messages
     aiBubbleTextColor: "#000000", // Black text for AI messages
     
@@ -45,7 +45,7 @@ const chatConfig = {
     // Input styling
     inputBackground: "#FFFFFF", // White input background
     buttonBackground: "#242424", // Dark button - Updated to #242424
-    buttonHoverBackground: "#007BFF", // Blue on hover
+    buttonHoverBackground: "#F4FFD0", // Light green on hover
   },
   
   // Animation and behavior options
