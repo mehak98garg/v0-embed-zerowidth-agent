@@ -212,7 +212,7 @@ export default function AgentComponent() {
                 display: "flex", 
                 alignItems: "center", 
                 gap: "8px", 
-                marginTop: "12px" 
+                marginTop: "6px" 
               }}>
                 <div style={{
                   width: "8px",
@@ -221,8 +221,9 @@ export default function AgentComponent() {
                   borderRadius: "50%",
                 }}></div>
                 <span style={{ 
-                  fontSize: "14px", 
-                  opacity: "0.8" 
+                  fontSize: "10px", 
+                  opacity: "0.8",
+                  textTransform: "uppercase"
                 }}>
                   Online
                 </span>
@@ -425,13 +426,13 @@ export default function AgentComponent() {
               color: isSubmitHovered ? "#000000" : "#FFFFFF", // Change text color on hover
               border: "none",
               borderRadius: "8px",
-              padding: "12px",
+              padding: "0", // Remove padding to center properly
               cursor: (!message.trim() || isLoading) ? "default" : "pointer",
               transition: "all 0.2s ease",
               opacity: (!message.trim() || isLoading) ? "0.5" : "1",
-              minWidth: "48px", // Ensure button has minimum width
+              width: "48px", // Set explicit width
+              height: "48px", // Set explicit height for perfect centering
               flexShrink: 0, // Prevent button from shrinking
-              height: "48px", // Set explicit height for better centering
             }}
           >
             <svg
