@@ -165,12 +165,13 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px auto 4px 24px", // Aligned to left edge with 24px padding
-      maxWidth: "calc(100% - 24px)", // Max width with 24px padding from edge
+      margin: "4px 0 4px 24px", // Left aligned with 24px padding, no auto margin
+      maxWidth: "calc(75% - 24px)", // Limit to 75% width to leave space for user bubbles
       width: "fit-content", // Resize based on content length
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
       wordBreak: "break-word", // Handle long words properly
+      display: "inline-block", // Ensure proper content-based sizing
     },
   };
 
