@@ -152,7 +152,7 @@ export default function AgentComponent() {
       color: chatConfig.styling?.userBubbleTextColor || "#FFFFFF",
       padding: "12px 16px",
       borderRadius: "18px 18px 4px 18px",
-      margin: "4px 0", // No right margin - goes to edge like WhatsApp
+      margin: "4px 24px 4px 0", // 24px gap from right edge to match AI message spacing
       maxWidth: "80%",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -163,7 +163,7 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0",
+      margin: "4px 0 4px 24px", // 24px gap from left edge to match user message spacing
       maxWidth: "80%",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
