@@ -153,10 +153,11 @@ export default function AgentComponent() {
       padding: "12px 16px",
       borderRadius: "18px 18px 4px 18px",
       margin: "4px 24px 4px auto", // Aligned to right edge with 24px padding
-      maxWidth: "calc(100% - 48px)", // Allow bubbles to use most of the width minus padding
-      minWidth: "120px", // Minimum width for small messages
+      maxWidth: "calc(100% - 24px)", // Max width with 24px padding from edge
+      width: "fit-content", // Resize based on content length
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+      wordBreak: "break-word", // Handle long words properly
     },
     agent: {
       alignSelf: "flex-start",
@@ -165,10 +166,11 @@ export default function AgentComponent() {
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
       margin: "4px auto 4px 24px", // Aligned to left edge with 24px padding
-      maxWidth: "calc(100% - 48px)", // Allow bubbles to use most of the width minus padding
-      minWidth: "120px", // Minimum width for small messages
+      maxWidth: "calc(100% - 24px)", // Max width with 24px padding from edge
+      width: "fit-content", // Resize based on content length
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+      wordBreak: "break-word", // Handle long words properly
     },
   };
 
@@ -269,10 +271,10 @@ export default function AgentComponent() {
                 fontSize: "12px", 
                 color: "#6B7280", 
                 marginTop: "4px",
-                marginLeft: msg.role === "user" ? "auto" : "32px", // Adjusted for new bubble positioning
-                marginRight: msg.role === "user" ? "32px" : "auto", // Adjusted for new bubble positioning
+                marginLeft: msg.role === "user" ? "auto" : "24px", // Align with bubble positioning
+                marginRight: msg.role === "user" ? "24px" : "auto", // Align with bubble positioning
                 textAlign: msg.role === "user" ? "right" : "left",
-                maxWidth: "calc(100% - 48px)"
+                maxWidth: "calc(100% - 24px)"
               }}>
                 {formatTime(new Date())}
               </div>
