@@ -410,7 +410,7 @@ export default function AgentComponent() {
               alignItems: "center",
               justifyContent: "center",
               backgroundColor: isSubmitHovered ? 
-                (chatConfig.styling?.buttonHoverBackground || "#F4FFD0") : 
+                (chatConfig.styling?.buttonHoverBackground || "#E5E5E5") : 
                 (chatConfig.styling?.buttonBackground || "#242424"),
               color: isSubmitHovered ? "#000000" : "#FFFFFF", // Change text color on hover
               border: "none",
@@ -422,6 +422,7 @@ export default function AgentComponent() {
               width: "48px", // Set explicit width
               height: "48px", // Set explicit height for perfect centering
               flexShrink: 0, // Prevent button from shrinking
+              position: "relative", // Add relative positioning for better centering
             }}
           >
             <svg
@@ -430,6 +431,12 @@ export default function AgentComponent() {
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)", // Perfect centering
+              }}
             >
               <path
                 fillRule="evenodd"
