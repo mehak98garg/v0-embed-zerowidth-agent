@@ -45,7 +45,7 @@ const chatConfig = {
     // Input styling
     inputBackground: "#FFFFFF", // White input background
     buttonBackground: "#242424", // Dark button - Updated to #242424
-    buttonHoverBackground: "#F4FFD0", // Light green on hover
+    buttonHoverBackground: "#E5E5E5", // Light gray on hover
   },
   
   // Animation and behavior options
