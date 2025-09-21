@@ -152,8 +152,9 @@ export default function AgentComponent() {
       color: chatConfig.styling?.userBubbleTextColor || "#FFFFFF",
       padding: "12px 16px",
       borderRadius: "18px 18px 4px 18px",
-      margin: "4px 24px 4px 0", // 24px gap from right edge to match AI message spacing
-      maxWidth: "80%",
+      margin: "4px 24px 4px auto", // Aligned to right edge with 24px padding
+      maxWidth: "calc(100% - 48px)", // Allow bubbles to use most of the width minus padding
+      minWidth: "120px", // Minimum width for small messages
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
     },
@@ -163,8 +164,9 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 24px", // 24px gap from left edge to match user message spacing
-      maxWidth: "80%",
+      margin: "4px auto 4px 24px", // Aligned to left edge with 24px padding
+      maxWidth: "calc(100% - 48px)", // Allow bubbles to use most of the width minus padding
+      minWidth: "120px", // Minimum width for small messages
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
     },
@@ -187,7 +189,7 @@ export default function AgentComponent() {
         boxShadow: "none", // Removed drop shadow
       }}
     >
-      {/* Modern Header with Online Status */}
+      {/* Modern Header with Description as Title */}
       <div
         style={{
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
@@ -205,7 +207,7 @@ export default function AgentComponent() {
               margin: "0",
               fontFamily: "Poppins, sans-serif"
             }}>
-              {chatConfig.header.title}
+              {chatConfig.header.description}
             </h2>
             {chatConfig.header.showOnlineStatus && (
               <div style={{ 
@@ -239,25 +241,8 @@ export default function AgentComponent() {
         display: "flex", 
         flexDirection: "column", 
         minHeight: "0",
-        padding: "0 24px"
+        padding: "0" // Removed padding to allow bubbles to reach edges
       }}>
-        {/* AI Welcome Message */}
-        <div style={{ paddingTop: "24px", paddingBottom: "16px" }}>
-          <div style={bubbleStyles.agent}>
-            <p style={{ margin: "0", fontSize: "14px" }}>
-              {chatConfig.header.description}
-            </p>
-          </div>
-          <div style={{ 
-            fontSize: "12px", 
-            color: "#6B7280", 
-            marginTop: "8px", 
-            marginLeft: "8px" 
-          }}>
-            {formatTime(new Date())}
-          </div>
-        </div>
-
         {/* Scrollable Messages */}
         <div
           className="chat-container"
@@ -267,6 +252,7 @@ export default function AgentComponent() {
             flexDirection: "column",
             gap: "8px",
             overflowY: "auto",
+            paddingTop: "24px",
             paddingBottom: "16px",
           }}
         >
@@ -283,10 +269,10 @@ export default function AgentComponent() {
                 fontSize: "12px", 
                 color: "#6B7280", 
                 marginTop: "4px",
-                marginLeft: msg.role === "user" ? "auto" : "8px",
-                marginRight: msg.role === "user" ? "8px" : "auto",
+                marginLeft: msg.role === "user" ? "auto" : "32px", // Adjusted for new bubble positioning
+                marginRight: msg.role === "user" ? "32px" : "auto", // Adjusted for new bubble positioning
                 textAlign: msg.role === "user" ? "right" : "left",
-                maxWidth: "80%"
+                maxWidth: "calc(100% - 48px)"
               }}>
                 {formatTime(new Date())}
               </div>
