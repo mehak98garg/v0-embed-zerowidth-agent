@@ -196,8 +196,8 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 0", // FIXED: Removed 24px left margin
-      maxWidth: "calc(75% - 0px)", // FIXED: Removed padding offset
+      margin: "4px 0 4px 24px", // REVERTED: Back to original 24px left margin
+      maxWidth: "calc(75% - 24px)", // REVERTED: Back to original padding offset
       width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -209,10 +209,10 @@ export default function AgentComponent() {
   return (
     <div
       style={{
-        padding: "0",
-        width: "100vw",
-        maxWidth: "1040px",
-        margin: "0 auto",
+        padding: "0", // No padding
+        margin: "0", // FIXED: Removed auto margins
+        width: "100%", // FIXED: Changed from 100vw to 100%
+        maxWidth: "none", // FIXED: Removed maxWidth constraint
         height: chatConfig.maxChatHeight || "480px",
         fontFamily: "system-ui, -apple-system, sans-serif",
         borderRadius: "4px",
@@ -303,7 +303,7 @@ export default function AgentComponent() {
                 fontSize: "12px", 
                 color: "#6B7280", 
                 marginTop: "4px",
-                marginLeft: msg.role === "user" ? "auto" : "0", // FIXED: Removed 24px left margin
+                marginLeft: msg.role === "user" ? "auto" : "24px", // REVERTED: Back to original 24px left margin
                 marginRight: msg.role === "user" ? "24px" : "auto",
                 textAlign: msg.role === "user" ? "right" : "left",
                 maxWidth: "calc(100% - 24px)"
