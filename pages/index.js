@@ -4,6 +4,7 @@
 // Updated to match the lovable design with dark header, online status,
 // rotating prompts, and modern styling with all requested changes
 // FIXED: Auto-scroll issue for Framer embedding
+// FIXED: Removed left padding and changed "AI is typing..." to "Thinking..."
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -195,8 +196,8 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 24px",
-      maxWidth: "calc(75% - 24px)",
+      margin: "4px 0 4px 0", // FIXED: Removed 24px left margin
+      maxWidth: "calc(75% - 0px)", // FIXED: Removed padding offset
       width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -302,7 +303,7 @@ export default function AgentComponent() {
                 fontSize: "12px", 
                 color: "#6B7280", 
                 marginTop: "4px",
-                marginLeft: msg.role === "user" ? "auto" : "24px",
+                marginLeft: msg.role === "user" ? "auto" : "0", // FIXED: Removed 24px left margin
                 marginRight: msg.role === "user" ? "24px" : "auto",
                 textAlign: msg.role === "user" ? "right" : "left",
                 maxWidth: "calc(100% - 24px)"
@@ -340,7 +341,7 @@ export default function AgentComponent() {
                   }}></div>
                 </div>
                 <span style={{ fontSize: "12px", color: "#6B7280" }}>
-                  AI is typing...
+                  Thinking...
                 </span>
               </div>
             </div>
