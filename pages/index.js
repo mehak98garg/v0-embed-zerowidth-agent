@@ -3,6 +3,7 @@
 //
 // Updated to match the lovable design with dark header, online status,
 // rotating prompts, and modern styling with all requested changes
+// FIXED: Auto-scroll issue for Framer embedding
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -54,6 +55,20 @@ export default function AgentComponent() {
     setUserId(getUserId());
   }, []);
 
+  // FIXED: Prevent any initial scrolling behavior on mount
+  useEffect(() => {
+    // Prevent any scrolling behavior on initial mount
+    const preventInitialScroll = () => {
+      window.scrollTo({ top: window.scrollY, behavior: 'auto' });
+    };
+    
+    // Lock scroll position briefly on mount
+    preventInitialScroll();
+    const timeoutId = setTimeout(preventInitialScroll, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, []); // Empty dependency array - runs only on mount
+
   // Rotate suggested prompts
   useEffect(() => {
     if (chatConfig.behavior?.rotatePrompts && showSuggestions) {
@@ -66,13 +81,28 @@ export default function AgentComponent() {
     }
   }, [showSuggestions]);
 
+  // FIXED: Updated scrollToBottom function - use scrollTop instead of scrollIntoView
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll if there are actual messages to show
+    if (conversation.length === 0) return;
+    
+    const chatContainer = document.querySelector(".chat-container");
+    if (chatContainer) {
+      // Use scrollTop instead of scrollIntoView to prevent page scrolling
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
   };
 
+  // FIXED: Updated scrolling useEffect to only trigger with messages
   useEffect(() => {
-    if (document.querySelector(".chat-container")) {
-      scrollToBottom();
+    // CRITICAL: Only scroll if there are messages (prevents initial scroll on empty chat)
+    if (conversation.length > 0) {
+      // Small delay to ensure DOM is updated
+      const timeoutId = setTimeout(() => {
+        scrollToBottom();
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
     }
   }, [conversation]);
 
@@ -152,12 +182,12 @@ export default function AgentComponent() {
       color: chatConfig.styling?.userBubbleTextColor || "#FFFFFF",
       padding: "12px 16px",
       borderRadius: "18px 18px 4px 18px",
-      margin: "4px 24px 4px auto", // Aligned to right edge with 24px padding
-      maxWidth: "calc(100% - 24px)", // Max width with 24px padding from edge
-      width: "fit-content", // Resize based on content length
+      margin: "4px 24px 4px auto",
+      maxWidth: "calc(100% - 24px)",
+      width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      wordBreak: "break-word", // Handle long words properly
+      wordBreak: "break-word",
     },
     agent: {
       alignSelf: "flex-start",
@@ -165,13 +195,13 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 24px", // Left aligned with 24px padding, no auto margin
-      maxWidth: "calc(75% - 24px)", // Limit to 75% width to leave space for user bubbles
-      width: "fit-content", // Resize based on content length
+      margin: "4px 0 4px 24px",
+      maxWidth: "calc(75% - 24px)",
+      width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-      wordBreak: "break-word", // Handle long words properly
-      display: "inline-block", // Ensure proper content-based sizing
+      wordBreak: "break-word",
+      display: "inline-block",
     },
   };
 
@@ -189,7 +219,7 @@ export default function AgentComponent() {
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
-        boxShadow: "none", // Removed drop shadow
+        boxShadow: "none",
       }}
     >
       {/* Modern Header with Description as Title */}
@@ -244,7 +274,7 @@ export default function AgentComponent() {
         display: "flex", 
         flexDirection: "column", 
         minHeight: "0",
-        padding: "0" // Removed padding to allow bubbles to reach edges
+        padding: "0"
       }}>
         {/* Scrollable Messages */}
         <div
@@ -272,8 +302,8 @@ export default function AgentComponent() {
                 fontSize: "12px", 
                 color: "#6B7280", 
                 marginTop: "4px",
-                marginLeft: msg.role === "user" ? "auto" : "24px", // Align with bubble positioning
-                marginRight: msg.role === "user" ? "24px" : "auto", // Align with bubble positioning
+                marginLeft: msg.role === "user" ? "auto" : "24px",
+                marginRight: msg.role === "user" ? "24px" : "auto",
                 textAlign: msg.role === "user" ? "right" : "left",
                 maxWidth: "calc(100% - 24px)"
               }}>
@@ -379,6 +409,8 @@ export default function AgentComponent() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               disabled={isLoading}
+              autoFocus={false} // FIXED: Prevent auto-focus
+              autoComplete="off" // FIXED: Prevent browser autocomplete popup
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -388,12 +420,14 @@ export default function AgentComponent() {
                 outline: "none",
                 backgroundColor: chatConfig.styling?.inputBackground || "#FFFFFF",
                 transition: "border-color 0.2s ease",
-                textAlign: "left", // Left align the input text
-                paddingLeft: "16px", // Ensure proper spacing
-                boxSizing: "border-box", // Prevent overlapping
+                textAlign: "left",
+                paddingLeft: "16px",
+                boxSizing: "border-box",
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "#007BFF";
+                // FIXED: Prevent any scrolling when input gets focus
+                e.preventDefault();
               }}
               onBlur={(e) => {
                 e.target.style.borderColor = chatConfig.styling?.promptBorder || "#E0E0E0";
@@ -412,17 +446,17 @@ export default function AgentComponent() {
               backgroundColor: isSubmitHovered ? 
                 (chatConfig.styling?.buttonHoverBackground || "#E5E5E5") : 
                 (chatConfig.styling?.buttonBackground || "#242424"),
-              color: isSubmitHovered ? "#000000" : "#FFFFFF", // Change text color on hover
+              color: isSubmitHovered ? "#000000" : "#FFFFFF",
               border: "none",
               borderRadius: "8px",
-              padding: "0", // Remove padding to center properly
+              padding: "0",
               cursor: (!message.trim() || isLoading) ? "default" : "pointer",
               transition: "all 0.2s ease",
               opacity: (!message.trim() || isLoading) ? "0.5" : "1",
-              width: "48px", // Set explicit width
-              height: "48px", // Set explicit height for perfect centering
-              flexShrink: 0, // Prevent button from shrinking
-              position: "relative", // Add relative positioning for better centering
+              width: "48px",
+              height: "48px",
+              flexShrink: 0,
+              position: "relative",
             }}
           >
             <svg
@@ -435,13 +469,13 @@ export default function AgentComponent() {
                 position: "absolute",
                 top: "50%",
                 left: "50%",
-                transform: "translate(-50%, -50%)", // Perfect centering
+                transform: "translate(-50%, -50%)",
               }}
             >
               <path
                 fillRule="evenodd"
                 clipRule="evenodd"
-                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.6311 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
+                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.631 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
                 fill="currentColor"
               />
             </svg>
@@ -462,9 +496,15 @@ export default function AgentComponent() {
         </div>
       )}
 
-      {/* Styles */}
+      {/* FIXED: Updated Styles with CSS containment */}
       <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        
+        /* FIXED: Prevent the component from affecting page scroll */
+        .chat-container {
+          contain: layout style paint; /* CSS containment */
+          isolation: isolate; /* Create new stacking context */
+        }
         
         .chat-container::-webkit-scrollbar {
           width: 6px;
