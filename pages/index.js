@@ -217,7 +217,7 @@ export default function AgentComponent() {
         height: "100%",
         maxWidth: "none",
         border: "none",
-        borderRadius: 0,
+        borderRadius: "4px",
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
@@ -232,7 +232,7 @@ export default function AgentComponent() {
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
           color: chatConfig.styling?.headerTextColor || "#FFFFFF",
           padding: "24px",
-          borderRadius: "0",
+          borderRadius: "4px 4px 0 0",
           borderBottom: "1px solid #E0E0E0",
         }}
       >
