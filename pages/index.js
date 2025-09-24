@@ -210,13 +210,13 @@ export default function AgentComponent() {
     <div
       style={{
         padding: "0", 
-        margin: "0", 
-        width: "100%", 
+        margin: "-8px", // HACK: Negative margin to counteract Framer's padding
+        width: "calc(100% + 16px)", // HACK: Expand width to fill the gap
         maxWidth: "none", 
-        height: chatConfig.maxChatHeight || "480px",
+        height: "calc(" + (chatConfig.maxChatHeight || 480) + "px + 16px)", // HACK: Adjust height
         fontFamily: "system-ui, -apple-system, sans-serif",
         borderRadius: "0",
-        border: "3px solid red", // DEBUG: Add bright red border to identify boundaries
+        border: "3px solid red", // DEBUG: Keep red border for now
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
@@ -498,14 +498,40 @@ export default function AgentComponent() {
         </div>
       )}
 
-      {/* FIXED: Updated Styles with CSS containment */}
-      <style jsx>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+      {/* FIXED: Global CSS Reset to eliminate all external spacing */}
+      <style jsx global>{`
+        /* Reset all margins and padding globally */
+        * {
+          margin: 0 !important;
+          padding: 0 !important;
+          box-sizing: border-box !important;
+        }
         
-        /* FIXED: Prevent the component from affecting page scroll */
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          overflow: hidden !important; /* Prevent scroll bars */
+        }
+        
+        /* Reset iframe and container styles */
+        iframe {
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          display: block !important;
+        }
+        
+        /* Prevent any default Next.js spacing */
+        #__next {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
         .chat-container {
-          contain: layout style paint; /* CSS containment */
-          isolation: isolate; /* Create new stacking context */
+          contain: layout style paint;
+          isolation: isolate;
         }
         
         .chat-container::-webkit-scrollbar {
