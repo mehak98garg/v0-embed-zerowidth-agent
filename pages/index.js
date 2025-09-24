@@ -209,18 +209,19 @@ export default function AgentComponent() {
   return (
     <div
       style={{
-        padding: "0", // No padding
-        margin: "0", // FIXED: Removed auto margins
-        width: "100%", // FIXED: Changed from 100vw to 100%
-        maxWidth: "none", // FIXED: Removed maxWidth constraint
+        padding: "0", 
+        margin: "0", 
+        width: "100%", 
+        maxWidth: "none", 
         height: chatConfig.maxChatHeight || "480px",
         fontFamily: "system-ui, -apple-system, sans-serif",
-        borderRadius: "4px",
-        border: "1px solid #E0E0E0",
+        borderRadius: "0", // FIXED: Removed border radius to eliminate visual padding
+        border: "none", // FIXED: Removed border to eliminate spacing
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
         boxShadow: "none",
+        boxSizing: "border-box", // FIXED: Ensure proper box sizing
       }}
     >
       {/* Modern Header with Description as Title */}
@@ -229,7 +230,7 @@ export default function AgentComponent() {
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
           color: chatConfig.styling?.headerTextColor || "#FFFFFF",
           padding: "24px",
-          borderRadius: "4px 4px 0 0",
+          borderRadius: "0", // FIXED: Removed border radius to match container
           borderBottom: "1px solid #E0E0E0",
         }}
       >
