@@ -15,43 +15,27 @@ import { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { v4 as uuidv4 } from "uuid";
 
-// =============================================================================
-// Utilities
-// =============================================================================
-
-const TYPE_SPEED = 10; // For the thinking indicator dots
-
-const useAutoScroll = (dependency) => {
-  const messagesEndRef = useRef(null);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-  }, [dependency]);
-
-  return messagesEndRef;
-};
-
-const formatTime = () => {
-  const d = new Date();
-  const hh = d.getHours().toString().padStart(2, "0");
-  const mm = d.getMinutes().toString().padStart(2, "0");
-  return `${hh}:${mm}`;
+const getSessionId = () => {
+  if (typeof window === "undefined") return "";
+  let sessionId = sessionStorage.getItem("sessionId");
+  sessionId = sessionId && sessionId.length <= 32 ? sessionId : null;
+  if (!sessionId) {
+    sessionId = uuidv4().replace(/-/g, "").slice(0, 32);
+    sessionStorage.setItem("sessionId", sessionId);
+  }
+  return sessionId;
 };
 
 const getUserId = () => {
-  let userId = localStorage.getItem("mehak_user_id");
+  if (typeof window === "undefined") return "";
+  let userId = localStorage.getItem("userId");
+  userId = userId && userId.length <= 32 ? userId : null;
   if (!userId) {
-    userId = uuidv4();
-    localStorage.setItem("mehak_user_id", userId);
+    userId = uuidv4().replace(/-/g, "").slice(0, 32);
+    localStorage.setItem("userId", userId);
   }
   return userId;
 };
-
-// =============================================================================
-// Component
-// =============================================================================
 
 export default function AgentComponent() {
   const [message, setMessage] = useState("");
@@ -63,48 +47,96 @@ export default function AgentComponent() {
   const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [isSubmitHovered, setIsSubmitHovered] = useState(false);
+  
+  const messagesEndRef = useRef(null);
 
-  const messagesEndRef = useAutoScroll(conversation);
-  const inputRef = useRef(null);
-
-  // Session + user id
+  // Initialize IDs
   useEffect(() => {
-    setSessionId(uuidv4());
+    setSessionId(getSessionId());
     setUserId(getUserId());
   }, []);
 
-  // Rotate suggested prompt
+  // FIXED: Prevent any initial scrolling behavior on mount
   useEffect(() => {
-    if (!chatConfig.suggestedPrompts?.length) return;
-    const id = setInterval(() => {
-      setCurrentPromptIndex((i) => (i + 1) % chatConfig.suggestedPrompts.length);
-    }, 4000);
-    return () => clearInterval(id);
-  }, []);
+    // Prevent any scrolling behavior on initial mount
+    const preventInitialScroll = () => {
+      window.scrollTo({ top: window.scrollY, behavior: 'auto' });
+    };
+    
+    // Lock scroll position briefly on mount
+    preventInitialScroll();
+    const timeoutId = setTimeout(preventInitialScroll, 100);
+    
+    return () => clearTimeout(timeoutId);
+  }, []); // Empty dependency array - runs only on mount
 
-  // Submit message
-  const submitMessage = async (text) => {
-    if (!text || isLoading) return;
+  // Rotate suggested prompts
+  useEffect(() => {
+    if (chatConfig.behavior?.rotatePrompts && showSuggestions) {
+      const interval = setInterval(() => {
+        setCurrentPromptIndex((prevIndex) => 
+          (prevIndex + 1) % chatConfig.suggestedPrompts.length
+        );
+      }, chatConfig.behavior.rotationInterval || 4500);
+      return () => clearInterval(interval);
+    }
+  }, [showSuggestions]);
+
+  // FIXED: Updated scrollToBottom function - use scrollTop instead of scrollIntoView
+  const scrollToBottom = () => {
+    // Only scroll if there are actual messages to show
+    if (conversation.length === 0) return;
+    
+    const chatContainer = document.querySelector(".chat-container");
+    if (chatContainer) {
+      // Use scrollTop instead of scrollIntoView to prevent page scrolling
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  };
+
+  // FIXED: Updated scrolling useEffect to only trigger with messages
+  useEffect(() => {
+    // CRITICAL: Only scroll if there are messages (prevents initial scroll on empty chat)
+    if (conversation.length > 0) {
+      // Small delay to ensure DOM is updated
+      const timeoutId = setTimeout(() => {
+        scrollToBottom();
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [conversation]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    submitMessage(message);
+  };
+
+  const submitMessage = async (userInput) => {
+    if (!userInput.trim()) return;
+
+    setMessage("");
+    setError(null);
+    setShowSuggestions(false); // Hide suggestions after first message
 
     const userMessage = {
-      id: uuidv4(),
-      from: "user",
-      text: text.trim(),
-      time: formatTime(),
+      role: "user",
+      content: userInput.trim(),
     };
 
     setConversation((prev) => [...prev, userMessage]);
-    setIsLoading(true);
-    setError(null);
-    setShowSuggestions(false);
+
+    const payload = {
+      data: { message: userMessage },
+      stateful: true,
+      stream: false,
+      user_id: userId,
+      session_id: sessionId,
+      verbose: false,
+    };
 
     try {
-      const payload = {
-        flowUrl: chatConfig.flowURL,
-        sessionId,
-        userId,
-        userText: text,
-      };
+      setIsLoading(true);
 
       const res = await fetch("/api/proxy", {
         method: "POST",
@@ -113,301 +145,395 @@ export default function AgentComponent() {
       });
 
       if (!res.ok) {
-        const t = await res.text();
-        throw new Error(t || "Request failed");
+        throw new Error(`Server error: ${res.status}`);
       }
 
       const data = await res.json();
-      const reply = data?.reply ?? "Sorry, I didn’t get that.";
+      const agentReply = data.output_data?.content || "No valid response received from agent.";
 
       const agentMessage = {
-        id: uuidv4(),
-        from: "agent",
-        text: reply,
-        time: formatTime(),
+        role: "agent",
+        content: agentReply,
       };
 
       setConversation((prev) => [...prev, agentMessage]);
     } catch (err) {
-      setError(err?.message || "Something went wrong.");
+      console.error("Error fetching agent response:", err);
+      setError(err.message);
     } finally {
       setIsLoading(false);
-      inputRef.current?.focus();
     }
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    submitMessage(message);
-    setMessage("");
+  const handlePromptClick = (prompt) => {
+    setMessage(prompt);
+    setTimeout(() => {
+      submitMessage(prompt);
+    }, 0);
   };
 
-  // Styling tokens
-  const tokens = {
-    container: {
-      // FULL-BLEED FIX: absolutely fill the iframe/host
-      position: "absolute",
-      inset: 0,
-      margin: 0,
-      padding: 0,
-      width: "100%",
-      height: "100%",
-      maxWidth: "none",
-      fontFamily: "system-ui, -apple-system, sans-serif",
-      border: "none",
-      borderRadius: 0,
-      backgroundColor: "#FFFFFF",
-      display: "flex",
-      flexDirection: "column",
-      boxShadow: "none",
-      boxSizing: "border-box",
-    },
-    header: {
-      backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
-      color: chatConfig.styling?.headerTextColor || "#FFFFFF",
-      padding: "24px",
-      borderRadius: "0",
-      borderBottom: "1px solid #E0E0E0",
-    },
-    headerTitle: {
-      fontSize: "20px",
-      fontWeight: 600,
-      marginBottom: "6px",
-    },
-    headerDesc: {
+  const formatTime = (date) => {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const bubbleStyles = {
+    user: {
+      alignSelf: "flex-end",
+      backgroundColor: chatConfig.styling?.userBubbleBackground || "#007BFF",
+      color: chatConfig.styling?.userBubbleTextColor || "#FFFFFF",
+      padding: "12px 16px",
+      borderRadius: "18px 18px 4px 18px",
+      margin: "4px 24px 4px auto",
+      maxWidth: "calc(100% - 24px)",
+      width: "fit-content",
       fontSize: "14px",
-      opacity: 0.9,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+      wordBreak: "break-word",
     },
-    onlineRow: {
-      display: "flex",
-      alignItems: "center",
-      marginTop: "8px",
-      gap: "8px",
-      fontSize: "12px",
-      color: "#9CA3AF",
-    },
-    dotOnline: {
-      width: 8,
-      height: 8,
-      borderRadius: "50%",
-      backgroundColor: "#7CFC00",
+    agent: {
+      alignSelf: "flex-start",
+      backgroundColor: chatConfig.styling?.aiBubbleBackground || "#E5E5E5",
+      color: chatConfig.styling?.aiBubbleTextColor || "#000000",
+      padding: "12px 16px",
+      borderRadius: "18px 18px 18px 4px",
+      margin: "4px 0 4px 24px", // REVERTED: Back to original 24px left margin
+      maxWidth: "calc(75% - 24px)", // REVERTED: Back to original padding offset
+      width: "fit-content",
+      fontSize: "14px",
+      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+      wordBreak: "break-word",
       display: "inline-block",
-    },
-    chatWrap: {
-      flex: 1,
-      display: "flex",
-      flexDirection: "column",
-      padding: "16px 20px",
-      overflow: "hidden",
-    },
-    chatScroll: {
-      flex: 1,
-      overflowY: "auto",
-      overflowX: "hidden",
-      paddingRight: 4,
-    },
-    bubbleRow: {
-      display: "flex",
-      marginBottom: 12,
-    },
-    bubbleUser: {
-      marginLeft: "auto",
-      background: "#F3F4F6",
-      color: "#111827",
-      border: "1px solid #E5E7EB",
-      borderRadius: 16,
-      padding: "10px 12px",
-      maxWidth: "80%",
-      boxShadow: "none",
-      whiteSpace: "pre-wrap",
-      wordBreak: "break-word",
-    },
-    bubbleAgent: {
-      marginRight: "auto",
-      background: "#111827",
-      color: "#F9FAFB",
-      borderRadius: 16,
-      padding: "10px 12px",
-      maxWidth: "80%",
-      border: "1px solid #111827",
-      boxShadow: "0 1px 2px rgba(0,0,0,0.08)",
-      whiteSpace: "pre-wrap",
-      wordBreak: "break-word",
-    },
-    timestamp: {
-      fontSize: 11,
-      marginTop: 6,
-      color: "#9CA3AF",
-    },
-    suggestionsWrap: {
-      marginTop: 8,
-      marginBottom: 10,
-    },
-    suggestion: {
-      width: "100%",
-      textAlign: "left",
-      padding: "12px 14px",
-      borderRadius: 12,
-      border: "1px solid #E5E7EB",
-      background: "#FFFFFF",
-      cursor: "pointer",
-      fontSize: 14,
-    },
-    inputRow: {
-      display: "flex",
-      gap: 10,
-      marginTop: 12,
-    },
-    input: {
-      flex: 1,
-      borderRadius: 12,
-      border: "1px solid #E5E7EB",
-      padding: "12px 14px",
-      fontSize: 14,
-      outline: "none",
-    },
-    submit: {
-      borderRadius: 12,
-      border: "1px solid #E5E7EB",
-      padding: "0 14px",
-      fontSize: 14,
-      background: isSubmitHovered ? "#111827" : "#F3F4F6",
-      color: isSubmitHovered ? "#FFFFFF" : "#111827",
-      cursor: "pointer",
-    },
-    thinkingRow: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      color: "#6B7280",
-      fontSize: 13,
-      marginTop: 6,
-    },
-    dot: {
-      width: 6,
-      height: 6,
-      borderRadius: "50%",
-      background: "#9CA3AF",
-      animation: "bounce 1.4s infinite ease-in-out both",
     },
   };
 
   return (
-    <div style={tokens.container}>
-      {/* Header */}
-      <div style={tokens.header}>
-        <div style={tokens.headerTitle}>
-          {chatConfig.header?.title || "Chat with ELIZA"}
-        </div>
-        <div style={tokens.headerDesc}>
-          {chatConfig.header?.description ||
-            "Greetings, I am a draft clone of ELIZA running the DOCTOR script. HOW DO YOU DO. PLEASE STATE YOUR PROBLEM."}
-        </div>
-        <div style={tokens.onlineRow}>
-          <span style={tokens.dotOnline} />
-          <span>ONLINE</span>
+    <div
+      style={{
+        padding: "0", 
+        margin: "-8px", // HACK: Negative margin to counteract Framer's padding
+        width: "calc(100% + 16px)", // HACK: Expand width to fill the gap
+        maxWidth: "none", 
+        height: "calc(" + (chatConfig.maxChatHeight || 480) + "px + 16px)", // HACK: Adjust height
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        borderRadius: "0",
+        border: "3px solid red", // DEBUG: Keep red border for now
+        backgroundColor: "#FFFFFF",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "none",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Modern Header with Description as Title */}
+      <div
+        style={{
+          backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
+          color: chatConfig.styling?.headerTextColor || "#FFFFFF",
+          padding: "24px",
+          borderRadius: "0", // FIXED: Removed border radius to match container
+          borderBottom: "1px solid #E0E0E0",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div>
+            <h2 style={{ 
+              fontSize: "16px", 
+              fontWeight: "300", 
+              margin: "0",
+              fontFamily: "Poppins, sans-serif"
+            }}>
+              {chatConfig.header.description}
+            </h2>
+            {chatConfig.header.showOnlineStatus && (
+              <div style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "8px", 
+                marginTop: "6px" 
+              }}>
+                <div style={{
+                  width: "8px",
+                  height: "8px",
+                  backgroundColor: "#E6FF99",
+                  borderRadius: "50%",
+                }}></div>
+                <span style={{ 
+                  fontSize: "10px", 
+                  opacity: "0.8",
+                  textTransform: "uppercase"
+                }}>
+                  Online
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Chat Area */}
-      <div style={tokens.chatWrap} className="chat-container">
-        {/* Suggestions */}
-        {showSuggestions && chatConfig.suggestedPrompts?.length > 0 && (
-          <div style={tokens.suggestionsWrap}>
-            <button
-              style={tokens.suggestion}
-              onClick={() =>
-                submitMessage(chatConfig.suggestedPrompts[currentPromptIndex])
-              }
-            >
-              {chatConfig.suggestedPrompts[currentPromptIndex]}
-            </button>
-          </div>
-        )}
-
-        {/* Scrollable messages */}
-        <div style={tokens.chatScroll}>
-          {conversation.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                ...tokens.bubbleRow,
-                justifyContent: m.from === "user" ? "flex-end" : "flex-start",
-              }}
-            >
-              <div style={m.from === "user" ? tokens.bubbleUser : tokens.bubbleAgent}>
-                <ReactMarkdown>{m.text}</ReactMarkdown>
-                <div style={tokens.timestamp}>{m.time}</div>
+      <div style={{ 
+        flex: "1", 
+        display: "flex", 
+        flexDirection: "column", 
+        minHeight: "0",
+        padding: "0"
+      }}>
+        {/* Scrollable Messages */}
+        <div
+          className="chat-container"
+          style={{
+            flex: "1",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
+            overflowY: "auto",
+            paddingTop: "24px",
+            paddingBottom: "16px",
+          }}
+        >
+          {conversation.map((msg, index) => (
+            <div key={index}>
+              <div style={msg.role === "user" ? bubbleStyles.user : bubbleStyles.agent}>
+                {msg.role === "agent" ? (
+                  <ReactMarkdown>{msg.content}</ReactMarkdown>
+                ) : (
+                  msg.content
+                )}
+              </div>
+              <div style={{ 
+                fontSize: "12px", 
+                color: "#6B7280", 
+                marginTop: "4px",
+                marginLeft: msg.role === "user" ? "auto" : "24px", // REVERTED: Back to original 24px left margin
+                marginRight: msg.role === "user" ? "24px" : "auto",
+                textAlign: msg.role === "user" ? "right" : "left",
+                maxWidth: "calc(100% - 24px)"
+              }}>
+                {formatTime(new Date())}
               </div>
             </div>
           ))}
 
-          {/* Typing / thinking */}
+          {/* Loading State */}
           {isLoading && (
-            <div style={tokens.bubbleRow}>
-              <div style={tokens.bubbleAgent}>
-                <div style={tokens.thinkingRow}>
-                  <span>Thinking</span>
-                  <span className="dots">
-                    <span style={{ ...tokens.dot, animationDelay: "0s" }} />
-                    <span style={{ ...tokens.dot, animationDelay: "0.2s" }} />
-                    <span style={{ ...tokens.dot, animationDelay: "0.4s" }} />
-                  </span>
+            <div style={bubbleStyles.agent}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <div style={{ display: "flex", gap: "4px" }}>
+                  <div style={{
+                    width: "8px",
+                    height: "8px",
+                    backgroundColor: "#6B7280",
+                    borderRadius: "50%",
+                    animation: "bounce 1.4s ease-in-out 0s infinite both"
+                  }}></div>
+                  <div style={{
+                    width: "8px",
+                    height: "8px",
+                    backgroundColor: "#6B7280",
+                    borderRadius: "50%",
+                    animation: "bounce 1.4s ease-in-out 0.16s infinite both"
+                  }}></div>
+                  <div style={{
+                    width: "8px",
+                    height: "8px",
+                    backgroundColor: "#6B7280",
+                    borderRadius: "50%",
+                    animation: "bounce 1.4s ease-in-out 0.32s infinite both"
+                  }}></div>
                 </div>
+                <span style={{ fontSize: "12px", color: "#6B7280" }}>
+                  Thinking...
+                </span>
               </div>
             </div>
           )}
-
+          
           <div ref={messagesEndRef} />
         </div>
+      </div>
 
-        {/* Error */}
-        {error && (
-          <div style={{ color: "#B91C1C", marginTop: 8, fontSize: 13 }}>{error}</div>
-        )}
+      {/* Suggested Prompts */}
+      {showSuggestions && (
+        <div style={{ padding: "0 24px 16px" }}>
+          <h3 style={{ 
+            fontSize: "14px", 
+            fontWeight: "500", 
+            color: "#374151", 
+            marginBottom: "12px",
+            margin: "0 0 12px 0"
+          }}>
+            {chatConfig.suggestedPromptsTitle}
+          </h3>
+          <div style={{ minHeight: "60px" }}>
+            <button
+              onClick={() => handlePromptClick(chatConfig.suggestedPrompts[currentPromptIndex])}
+              style={{
+                width: "100%",
+                padding: "12px",
+                backgroundColor: chatConfig.styling?.promptBackground || "#FFFFFF",
+                border: `1px solid ${chatConfig.styling?.promptBorder || "#E0E0E0"}`,
+                borderRadius: "8px",
+                fontSize: "14px",
+                textAlign: "left",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+              }}
+              onMouseOver={(e) => {
+                e.target.style.backgroundColor = chatConfig.styling?.promptHoverBackground || "#F5F5F5";
+                e.target.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.backgroundColor = chatConfig.styling?.promptBackground || "#FFFFFF";
+                e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+              }}
+            >
+              {chatConfig.suggestedPrompts[currentPromptIndex]}
+            </button>
+          </div>
+        </div>
+      )}
 
-        {/* Input */}
-        <form onSubmit={onSubmit} style={tokens.inputRow}>
-          <input
-            ref={inputRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder={chatConfig.placeholder || "Chat with this agent..."}
-            style={tokens.input}
-          />
+      {/* Input Area */}
+      <div style={{ 
+        borderTop: "1px solid #E0E0E0", 
+        padding: "14px" 
+      }}>
+        <form onSubmit={handleSubmit} style={{ 
+          display: "flex", 
+          alignItems: "center", 
+          gap: "12px" 
+        }}>
+          <div style={{ flex: "1" }}>
+            <input
+              type="text"
+              placeholder={chatConfig.chatInputPlaceholder}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={isLoading}
+              autoFocus={false} // FIXED: Prevent auto-focus
+              autoComplete="off" // FIXED: Prevent browser autocomplete popup
+              style={{
+                width: "100%",
+                padding: "12px 16px",
+                border: `1px solid ${chatConfig.styling?.promptBorder || "#E0E0E0"}`,
+                borderRadius: "8px",
+                fontSize: "14px",
+                outline: "none",
+                backgroundColor: chatConfig.styling?.inputBackground || "#FFFFFF",
+                transition: "border-color 0.2s ease",
+                textAlign: "left",
+                paddingLeft: "16px",
+                boxSizing: "border-box",
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#007BFF";
+                // FIXED: Prevent any scrolling when input gets focus
+                e.preventDefault();
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = chatConfig.styling?.promptBorder || "#E0E0E0";
+              }}
+            />
+          </div>
           <button
             type="submit"
-            onMouseEnter={() => setIsSubmitHovered(true)}
-            onMouseLeave={() => setIsSubmitHovered(false)}
-            style={tokens.submit}
-            disabled={isLoading}
+            disabled={!message.trim() || isLoading}
+            onMouseOver={() => setIsSubmitHovered(true)}
+            onMouseOut={() => setIsSubmitHovered(false)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: isSubmitHovered ? 
+                (chatConfig.styling?.buttonHoverBackground || "#E5E5E5") : 
+                (chatConfig.styling?.buttonBackground || "#242424"),
+              color: isSubmitHovered ? "#000000" : "#FFFFFF",
+              border: "none",
+              borderRadius: "8px",
+              padding: "0",
+              cursor: (!message.trim() || isLoading) ? "default" : "pointer",
+              transition: "all 0.2s ease",
+              opacity: (!message.trim() || isLoading) ? "0.5" : "1",
+              width: "48px",
+              height: "48px",
+              flexShrink: 0,
+              position: "relative",
+            }}
           >
-            ↑
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.631 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
+                fill="currentColor"
+              />
+            </svg>
           </button>
         </form>
       </div>
 
-      {/* Minimal global reset + scrollbars */}
+      {/* Error Display */}
+      {error && (
+        <div style={{ 
+          color: "#EF4444", 
+          padding: "16px 24px",
+          backgroundColor: "#FEF2F2",
+          borderTop: "1px solid #FECACA",
+          fontSize: "14px"
+        }}>
+          <strong>Error:</strong> {error}
+        </div>
+      )}
+
+      {/* FIXED: Global CSS Reset to eliminate all external spacing */}
       <style jsx global>{`
-        html, body, #__next {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
+        /* Reset all margins and padding globally */
+        * {
+          margin: 0 !important;
+          padding: 0 !important;
+          box-sizing: border-box !important;
         }
-
+        
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          overflow: hidden !important; /* Prevent scroll bars */
+        }
+        
+        /* Reset iframe and container styles */
         iframe {
-          margin: 0;
-          padding: 0;
-          border: none;
-          display: block;
+          margin: 0 !important;
+          padding: 0 !important;
+          border: none !important;
+          display: block !important;
         }
-
+        
+        /* Prevent any default Next.js spacing */
+        #__next {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
         .chat-container {
           contain: layout style paint;
           isolation: isolate;
         }
-
+        
         .chat-container::-webkit-scrollbar {
           width: 6px;
         }
@@ -418,14 +544,20 @@ export default function AgentComponent() {
           background-color: #D1D5DB;
           border-radius: 3px;
         }
+        .chat-container::-webkit-scrollbar-thumb:hover {
+          background-color: #9CA3AF;
+        }
         .chat-container {
           scrollbar-width: thin;
           scrollbar-color: #D1D5DB transparent;
         }
-
         @keyframes bounce {
-          0%, 80%, 100% { transform: scale(0); }
-          40% { transform: scale(1); }
+          0%, 80%, 100% {
+            transform: scale(0);
+          }
+          40% {
+            transform: scale(1);
+          }
         }
       `}</style>
     </div>
