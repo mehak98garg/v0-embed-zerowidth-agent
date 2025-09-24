@@ -210,18 +210,18 @@ export default function AgentComponent() {
     <div
       style={{
         padding: "0", 
-        margin: "-8px", // HACK: Negative margin to counteract Framer's padding
-        width: "calc(100% + 16px)", // HACK: Expand width to fill the gap
+        margin: "0", 
+        width: "100%", 
         maxWidth: "none", 
-        height: "calc(" + (chatConfig.maxChatHeight || 480) + "px + 16px)", // HACK: Adjust height
+        height: chatConfig.maxChatHeight || "480px",
         fontFamily: "system-ui, -apple-system, sans-serif",
-        borderRadius: "0",
-        border: "3px solid red", // DEBUG: Keep red border for now
+        borderRadius: "0", // FIXED: Removed border radius to eliminate visual padding
+        border: "none", // FIXED: Removed border to eliminate spacing
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
         boxShadow: "none",
-        boxSizing: "border-box",
+        boxSizing: "border-box", // FIXED: Ensure proper box sizing
       }}
     >
       {/* Modern Header with Description as Title */}
@@ -230,7 +230,7 @@ export default function AgentComponent() {
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
           color: chatConfig.styling?.headerTextColor || "#FFFFFF",
           padding: "24px",
-          borderRadius: "0", // FIXED: Removed border radius to match container
+          borderRadius: "4px 4px 0 0",
           borderBottom: "1px solid #E0E0E0",
         }}
       >
@@ -498,40 +498,14 @@ export default function AgentComponent() {
         </div>
       )}
 
-      {/* FIXED: Global CSS Reset to eliminate all external spacing */}
-      <style jsx global>{`
-        /* Reset all margins and padding globally */
-        * {
-          margin: 0 !important;
-          padding: 0 !important;
-          box-sizing: border-box !important;
-        }
+      {/* FIXED: Updated Styles with CSS containment */}
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          overflow: hidden !important; /* Prevent scroll bars */
-        }
-        
-        /* Reset iframe and container styles */
-        iframe {
-          margin: 0 !important;
-          padding: 0 !important;
-          border: none !important;
-          display: block !important;
-        }
-        
-        /* Prevent any default Next.js spacing */
-        #__next {
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
+        /* FIXED: Prevent the component from affecting page scroll */
         .chat-container {
-          contain: layout style paint;
-          isolation: isolate;
+          contain: layout style paint; /* CSS containment */
+          isolation: isolate; /* Create new stacking context */
         }
         
         .chat-container::-webkit-scrollbar {
