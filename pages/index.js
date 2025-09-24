@@ -196,8 +196,8 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 0",
-      maxWidth: "calc(75% - 0px)",
+      margin: "4px 0 4px 24px",
+      maxWidth: "calc(75% - 24px)",
       width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -309,7 +309,7 @@ export default function AgentComponent() {
                 marginLeft: msg.role === "user" ? "auto" : "24px",
                 marginRight: msg.role === "user" ? "24px" : "auto",
                 textAlign: msg.role === "user" ? "right" : "left",
-                maxWidth: "calc(100% - 24px)"
+                maxWidth: "calc(100% - 48px)"
               }}>
                 {formatTime(new Date())}
               </div>
@@ -318,7 +318,7 @@ export default function AgentComponent() {
 
           {/* Loading State */}
           {isLoading && (
-            <div style={bubbleStyles.agent}>
+            <div style={{...bubbleStyles.agent, margin: "4px 0 4px 24px"}}>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <div style={{ display: "flex", gap: "4px" }}>
                   <div style={{
