@@ -344,7 +344,7 @@ export default function AgentComponent() {
                   }}></div>
                 </div>
                 <span style={{ fontSize: "12px", color: "#6B7280" }}>
-                  Thinking
+                  Thinking...
                 </span>
               </div>
             </div>
