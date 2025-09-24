@@ -4,7 +4,6 @@
 // Updated to match the lovable design with dark header, online status,
 // rotating prompts, and modern styling with all requested changes
 // FIXED: Auto-scroll issue for Framer embedding
-// FIXED: Removed left padding and changed "AI is typing..." to "Thinking..."
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -196,8 +195,8 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 24px", // REVERTED: Back to original 24px left margin
-      maxWidth: "calc(75% - 24px)", // REVERTED: Back to original padding offset
+      margin: "4px 0 4px 0", // FIXED: Removed 24px left margin
+      maxWidth: "calc(75% - 0px)", // FIXED: Removed padding offset
       width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -209,19 +208,18 @@ export default function AgentComponent() {
   return (
     <div
       style={{
-        padding: "0", 
-        margin: "-8px", // HACK: Negative margin to counteract Framer's padding
-        width: "calc(100% + 16px)", // HACK: Expand width to fill the gap
-        maxWidth: "none", 
-        height: "calc(" + (chatConfig.maxChatHeight || 480) + "px + 16px)", // HACK: Adjust height
+        padding: "0",
+        width: "100vw",
+        maxWidth: "1040px",
+        margin: "0 auto",
+        height: chatConfig.maxChatHeight || "480px",
         fontFamily: "system-ui, -apple-system, sans-serif",
-        borderRadius: "0",
-        border: "3px solid red", // DEBUG: Keep red border for now
+        borderRadius: "4px",
+        border: "1px solid #E0E0E0",
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
         boxShadow: "none",
-        boxSizing: "border-box",
       }}
     >
       {/* Modern Header with Description as Title */}
@@ -230,7 +228,7 @@ export default function AgentComponent() {
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
           color: chatConfig.styling?.headerTextColor || "#FFFFFF",
           padding: "24px",
-          borderRadius: "0", // FIXED: Removed border radius to match container
+          borderRadius: "4px 4px 0 0",
           borderBottom: "1px solid #E0E0E0",
         }}
       >
@@ -304,7 +302,7 @@ export default function AgentComponent() {
                 fontSize: "12px", 
                 color: "#6B7280", 
                 marginTop: "4px",
-                marginLeft: msg.role === "user" ? "auto" : "24px", // REVERTED: Back to original 24px left margin
+                marginLeft: msg.role === "user" ? "auto" : "24px",
                 marginRight: msg.role === "user" ? "24px" : "auto",
                 textAlign: msg.role === "user" ? "right" : "left",
                 maxWidth: "calc(100% - 24px)"
@@ -342,7 +340,7 @@ export default function AgentComponent() {
                   }}></div>
                 </div>
                 <span style={{ fontSize: "12px", color: "#6B7280" }}>
-                  Thinking...
+                  AI is typing...
                 </span>
               </div>
             </div>
@@ -498,40 +496,14 @@ export default function AgentComponent() {
         </div>
       )}
 
-      {/* FIXED: Global CSS Reset to eliminate all external spacing */}
-      <style jsx global>{`
-        /* Reset all margins and padding globally */
-        * {
-          margin: 0 !important;
-          padding: 0 !important;
-          box-sizing: border-box !important;
-        }
+      {/* FIXED: Updated Styles with CSS containment */}
+      <style jsx>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         
-        html, body {
-          margin: 0 !important;
-          padding: 0 !important;
-          width: 100% !important;
-          height: 100% !important;
-          overflow: hidden !important; /* Prevent scroll bars */
-        }
-        
-        /* Reset iframe and container styles */
-        iframe {
-          margin: 0 !important;
-          padding: 0 !important;
-          border: none !important;
-          display: block !important;
-        }
-        
-        /* Prevent any default Next.js spacing */
-        #__next {
-          margin: 0 !important;
-          padding: 0 !important;
-        }
-        
+        /* FIXED: Prevent the component from affecting page scroll */
         .chat-container {
-          contain: layout style paint;
-          isolation: isolate;
+          contain: layout style paint; /* CSS containment */
+          isolation: isolate; /* Create new stacking context */
         }
         
         .chat-container::-webkit-scrollbar {
