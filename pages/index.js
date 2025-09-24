@@ -215,13 +215,13 @@ export default function AgentComponent() {
         maxWidth: "none", 
         height: chatConfig.maxChatHeight || "480px",
         fontFamily: "system-ui, -apple-system, sans-serif",
-        borderRadius: "0", // FIXED: Removed border radius to eliminate visual padding
-        border: "none", // FIXED: Removed border to eliminate spacing
+        borderRadius: "0",
+        border: "3px solid red", // DEBUG: Add bright red border to identify boundaries
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
         boxShadow: "none",
-        boxSizing: "border-box", // FIXED: Ensure proper box sizing
+        boxSizing: "border-box",
       }}
     >
       {/* Modern Header with Description as Title */}
