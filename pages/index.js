@@ -4,6 +4,7 @@
 // Updated to match the lovable design with dark header, online status,
 // rotating prompts, and modern styling with all requested changes
 // FIXED: Auto-scroll issue for Framer embedding
+// FIXED: Full-bleed component with no padding halo
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -195,8 +196,8 @@ export default function AgentComponent() {
       color: chatConfig.styling?.aiBubbleTextColor || "#000000",
       padding: "12px 16px",
       borderRadius: "18px 18px 18px 4px",
-      margin: "4px 0 4px 0", // FIXED: Removed 24px left margin
-      maxWidth: "calc(75% - 0px)", // FIXED: Removed padding offset
+      margin: "4px 0 4px 0",
+      maxWidth: "calc(75% - 0px)",
       width: "fit-content",
       fontSize: "14px",
       boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
@@ -208,18 +209,21 @@ export default function AgentComponent() {
   return (
     <div
       style={{
-        padding: "0",
-        width: "100vw",
-        maxWidth: "1040px",
-        margin: "0 auto",
-        height: chatConfig.maxChatHeight || "480px",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-        borderRadius: "4px",
-        border: "1px solid #E0E0E0",
+        position: "absolute",
+        inset: 0,                 // top:0, right:0, bottom:0, left:0
+        margin: 0,
+        padding: 0,
+        width: "100%",
+        height: "100%",
+        maxWidth: "none",
+        border: "none",
+        borderRadius: 0,
         backgroundColor: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
         boxShadow: "none",
+        boxSizing: "border-box",
+        fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
       {/* Modern Header with Description as Title */}
@@ -228,7 +232,7 @@ export default function AgentComponent() {
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
           color: chatConfig.styling?.headerTextColor || "#FFFFFF",
           padding: "24px",
-          borderRadius: "4px 4px 0 0",
+          borderRadius: "0",
           borderBottom: "1px solid #E0E0E0",
         }}
       >
@@ -496,10 +500,24 @@ export default function AgentComponent() {
         </div>
       )}
 
-      {/* FIXED: Updated Styles with CSS containment */}
-      <style jsx>{`
+      {/* FIXED: Updated global styles with minimal reset */}
+      <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         
+        html, body, #__next {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+        }
+
+        iframe {
+          margin: 0;
+          padding: 0;
+          border: none;
+          display: block;
+        }
+
         /* FIXED: Prevent the component from affecting page scroll */
         .chat-container {
           contain: layout style paint; /* CSS containment */
