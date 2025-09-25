@@ -444,37 +444,34 @@ export default function AgentComponent() {
             onMouseOver={() => setIsSubmitHovered(true)}
             onMouseOut={() => setIsSubmitHovered(false)}
             style={{
+              // Center with flex instead of absolute SVG
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              lineHeight: 0,              // prevents inline glyph baseline wiggle
               backgroundColor: isSubmitHovered ? 
                 (chatConfig.styling?.buttonHoverBackground || "#E5E5E5") : 
                 (chatConfig.styling?.buttonBackground || "#242424"),
               color: isSubmitHovered ? "#000000" : "#FFFFFF",
               border: "none",
               borderRadius: "8px",
-              padding: "0",
+              padding: 0,
               cursor: (!message.trim() || isLoading) ? "default" : "pointer",
               transition: "all 0.2s ease",
-              opacity: (!message.trim() || isLoading) ? "0.5" : "1",
+              opacity: (!message.trim() || isLoading) ? 0.5 : 1,
               width: "48px",
               height: "48px",
               flexShrink: 0,
-              position: "relative",
             }}
           >
             <svg
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-              }}
+              style={{ display: "block" }}   // no inline baseline, crisp centering
+              aria-hidden="true"
             >
               <path
                 fillRule="evenodd"
