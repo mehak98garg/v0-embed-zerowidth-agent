@@ -218,7 +218,7 @@ export default function AgentComponent() {
         maxWidth: "none",
         border: "none",
         borderRadius: "4px",
-        backgroundColor: "#FFFFFF",
+        backgroundColor: "#F5F5F5",
         display: "flex",
         flexDirection: "column",
         boxShadow: "none",
