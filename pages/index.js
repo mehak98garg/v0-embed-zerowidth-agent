@@ -444,40 +444,44 @@ export default function AgentComponent() {
             onMouseOver={() => setIsSubmitHovered(true)}
             onMouseOut={() => setIsSubmitHovered(false)}
             style={{
-              // Center with flex instead of absolute SVG
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              lineHeight: 0,              // prevents inline glyph baseline wiggle
               backgroundColor: isSubmitHovered ? 
                 (chatConfig.styling?.buttonHoverBackground || "#E5E5E5") : 
                 (chatConfig.styling?.buttonBackground || "#242424"),
               color: isSubmitHovered ? "#000000" : "#FFFFFF",
               border: "none",
               borderRadius: "8px",
-              padding: 0,
+              padding: "0",
+              margin: "0",
               cursor: (!message.trim() || isLoading) ? "default" : "pointer",
               transition: "all 0.2s ease",
-              opacity: (!message.trim() || isLoading) ? 0.5 : 1,
+              opacity: (!message.trim() || isLoading) ? "0.5" : "1",
               width: "48px",
               height: "48px",
               flexShrink: 0,
+              boxSizing: "border-box",
             }}
           >
             <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              style={{ display: "block" }}   // no inline baseline, crisp centering
-              aria-hidden="true"
+              style={{ 
+                display: "block",
+                margin: "0",
+                padding: "0"
+              }}
             >
               <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M15.1918 8.90615C15.6381 8.45983 16.3618 8.45983 16.8081 8.90615L21.9509 14.049C22.3972 14.4953 22.3972 15.2189 21.9509 15.6652C21.5046 16.1116 20.781 16.1116 20.3347 15.6652L17.1428 12.4734V22.2857C17.1428 22.9169 16.631 23.4286 15.9999 23.4286C15.3688 23.4286 14.8571 22.9169 14.8571 22.2857V12.4734L11.6652 15.6652C11.2189 16.1116 10.4953 16.1116 10.049 15.6652C9.60265 15.2189 9.60265 14.4953 10.049 14.049L15.1918 8.90615Z"
-                fill="currentColor"
+                d="M10 3L10 17M10 3L15 8M10 3L5 8"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
           </button>
