@@ -1,10 +1,11 @@
 // =============================================================================
 // Chat Agent with Modern Mehak.ai Design (React + Vercel)
 //
-// Updated to match the lovable design with dark header, online status,
-// rotating prompts, and modern styling with all requested changes
-// FIXED: Auto-scroll issue for Framer embedding
-// FIXED: Full-bleed component with no padding halo
+// Updated with requested changes:
+// 1. Updated description text
+// 2. Display 3 prompts horizontally (no rotation)
+// 3. Moved prompts down by 12px
+// 4. Prompts stay visible after user sends message
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -44,9 +45,8 @@ export default function AgentComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState("");
   const [userId, setUserId] = useState("");
-  const [currentPromptIndex, setCurrentPromptIndex] = useState(0);
-  const [showSuggestions, setShowSuggestions] = useState(true);
   const [isSubmitHovered, setIsSubmitHovered] = useState(false);
+  const [hoveredPromptIndex, setHoveredPromptIndex] = useState(null);
   
   const messagesEndRef = useRef(null);
 
@@ -56,49 +56,29 @@ export default function AgentComponent() {
     setUserId(getUserId());
   }, []);
 
-  // FIXED: Prevent any initial scrolling behavior on mount
+  // Prevent any initial scrolling behavior on mount
   useEffect(() => {
-    // Prevent any scrolling behavior on initial mount
     const preventInitialScroll = () => {
       window.scrollTo({ top: window.scrollY, behavior: 'auto' });
     };
     
-    // Lock scroll position briefly on mount
     preventInitialScroll();
     const timeoutId = setTimeout(preventInitialScroll, 100);
     
     return () => clearTimeout(timeoutId);
-  }, []); // Empty dependency array - runs only on mount
+  }, []);
 
-  // Rotate suggested prompts
-  useEffect(() => {
-    if (chatConfig.behavior?.rotatePrompts && showSuggestions) {
-      const interval = setInterval(() => {
-        setCurrentPromptIndex((prevIndex) => 
-          (prevIndex + 1) % chatConfig.suggestedPrompts.length
-        );
-      }, chatConfig.behavior.rotationInterval || 4500);
-      return () => clearInterval(interval);
-    }
-  }, [showSuggestions]);
-
-  // FIXED: Updated scrollToBottom function - use scrollTop instead of scrollIntoView
   const scrollToBottom = () => {
-    // Only scroll if there are actual messages to show
     if (conversation.length === 0) return;
     
     const chatContainer = document.querySelector(".chat-container");
     if (chatContainer) {
-      // Use scrollTop instead of scrollIntoView to prevent page scrolling
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   };
 
-  // FIXED: Updated scrolling useEffect to only trigger with messages
   useEffect(() => {
-    // CRITICAL: Only scroll if there are messages (prevents initial scroll on empty chat)
     if (conversation.length > 0) {
-      // Small delay to ensure DOM is updated
       const timeoutId = setTimeout(() => {
         scrollToBottom();
       }, 50);
@@ -117,7 +97,6 @@ export default function AgentComponent() {
 
     setMessage("");
     setError(null);
-    setShowSuggestions(false); // Hide suggestions after first message
 
     const userMessage = {
       role: "user",
@@ -210,7 +189,7 @@ export default function AgentComponent() {
     <div
       style={{
         position: "absolute",
-        inset: 0,                 // top:0, right:0, bottom:0, left:0
+        inset: 0,
         margin: 0,
         padding: 0,
         width: "100%",
@@ -226,7 +205,7 @@ export default function AgentComponent() {
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
-      {/* Modern Header with Description as Title */}
+      {/* Modern Header */}
       <div
         style={{
           backgroundColor: chatConfig.styling?.headerBackground || "#2D2D2D",
@@ -354,47 +333,54 @@ export default function AgentComponent() {
         </div>
       </div>
 
-      {/* Suggested Prompts */}
-      {showSuggestions && (
-        <div style={{ padding: "0 24px 16px" }}>
-          <h3 style={{ 
-            fontSize: "14px", 
-            fontWeight: "500", 
-            color: "#374151", 
-            marginBottom: "12px",
-            margin: "0 0 12px 0"
-          }}>
-            {chatConfig.suggestedPromptsTitle}
-          </h3>
-          <div style={{ minHeight: "60px" }}>
+      {/* Suggested Prompts - Always visible, 3 boxes horizontal, moved down 12px */}
+      <div style={{ padding: "0 24px 16px", marginTop: "12px" }}>
+        <h3 style={{ 
+          fontSize: "14px", 
+          fontWeight: "500", 
+          color: "#374151", 
+          marginBottom: "12px",
+          margin: "0 0 12px 0"
+        }}>
+          {chatConfig.suggestedPromptsTitle}
+        </h3>
+        <div style={{ 
+          display: "flex", 
+          gap: "8px", 
+          flexWrap: "wrap",
+          justifyContent: "space-between"
+        }}>
+          {chatConfig.suggestedPrompts.map((prompt, index) => (
             <button
-              onClick={() => handlePromptClick(chatConfig.suggestedPrompts[currentPromptIndex])}
+              key={index}
+              onClick={() => handlePromptClick(prompt)}
+              onMouseOver={() => setHoveredPromptIndex(index)}
+              onMouseOut={() => setHoveredPromptIndex(null)}
+              disabled={isLoading}
               style={{
-                width: "100%",
+                flex: "1",
+                minWidth: "0",
                 padding: "12px",
-                backgroundColor: chatConfig.styling?.promptBackground || "#FFFFFF",
+                backgroundColor: hoveredPromptIndex === index 
+                  ? (chatConfig.styling?.promptHoverBackground || "#F5F5F5")
+                  : (chatConfig.styling?.promptBackground || "#FFFFFF"),
                 border: `1px solid ${chatConfig.styling?.promptBorder || "#E0E0E0"}`,
                 borderRadius: "8px",
                 fontSize: "14px",
                 textAlign: "left",
-                cursor: "pointer",
+                cursor: isLoading ? "default" : "pointer",
                 transition: "all 0.2s ease",
-                boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-              }}
-              onMouseOver={(e) => {
-                e.target.style.backgroundColor = chatConfig.styling?.promptHoverBackground || "#F5F5F5";
-                e.target.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
-              }}
-              onMouseOut={(e) => {
-                e.target.style.backgroundColor = chatConfig.styling?.promptBackground || "#FFFFFF";
-                e.target.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+                boxShadow: hoveredPromptIndex === index 
+                  ? "0 2px 8px rgba(0,0,0,0.15)" 
+                  : "0 1px 3px rgba(0,0,0,0.1)",
+                opacity: isLoading ? "0.6" : "1",
               }}
             >
-              {chatConfig.suggestedPrompts[currentPromptIndex]}
+              {prompt}
             </button>
-          </div>
+          ))}
         </div>
-      )}
+      </div>
 
       {/* Input Area */}
       <div style={{ 
@@ -413,8 +399,8 @@ export default function AgentComponent() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               disabled={isLoading}
-              autoFocus={false} // FIXED: Prevent auto-focus
-              autoComplete="off" // FIXED: Prevent browser autocomplete popup
+              autoFocus={false}
+              autoComplete="off"
               style={{
                 width: "100%",
                 padding: "12px 16px",
@@ -430,7 +416,6 @@ export default function AgentComponent() {
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = "#007BFF";
-                // FIXED: Prevent any scrolling when input gets focus
                 e.preventDefault();
               }}
               onBlur={(e) => {
@@ -501,7 +486,7 @@ export default function AgentComponent() {
         </div>
       )}
 
-      {/* FIXED: Updated global styles with minimal reset */}
+      {/* Global Styles */}
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
         
@@ -519,10 +504,9 @@ export default function AgentComponent() {
           display: block;
         }
 
-        /* FIXED: Prevent the component from affecting page scroll */
         .chat-container {
-          contain: layout style paint; /* CSS containment */
-          isolation: isolate; /* Create new stacking context */
+          contain: layout style paint;
+          isolation: isolate;
         }
         
         .chat-container::-webkit-scrollbar {
