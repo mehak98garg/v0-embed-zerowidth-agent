@@ -26,7 +26,7 @@ const chatConfig = {
   // New styling options to match the lovable design
   styling: {
     // Header styling
-    headerBackground: "#2D2D2D",
+    headerBackground: "#000000",
     headerTextColor: "#FFFFFF",
     headerFont: "font-semibold",
     
