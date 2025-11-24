@@ -1,11 +1,7 @@
 // =============================================================================
 // Chat Agent with Modern Mehak.ai Design (React + Vercel)
 //
-// Updated with requested changes:
-// 1. Updated description text
-// 2. Display 3 prompts horizontally (no rotation)
-// 3. Moved prompts down by 12px
-// 4. Prompts stay visible after user sends message
+// Updated with mobile-friendly suggested prompts
 //
 // Author: Thomas J McLeish (Updated for Mehak.ai design)
 // Date: March 2, 2025
@@ -333,10 +329,15 @@ export default function AgentComponent() {
         </div>
       </div>
 
-      {/* Suggested Prompts - Always visible, 3 boxes horizontal, moved down 12px */}
-      <div style={{ padding: "0 24px 16px", marginTop: "12px" }}>
+      {/* Suggested Prompts - Mobile-Friendly with horizontal scroll */}
+      <div style={{ 
+        padding: "0 16px 16px", 
+        marginTop: "12px",
+        width: "100%",
+        boxSizing: "border-box"
+      }}>
         <h3 style={{ 
-          fontSize: "14px", 
+          fontSize: "13px", 
           fontWeight: "500", 
           color: "#374151", 
           marginBottom: "12px",
@@ -347,8 +348,10 @@ export default function AgentComponent() {
         <div style={{ 
           display: "flex", 
           gap: "8px", 
-          flexWrap: "wrap",
-          justifyContent: "space-between"
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}>
           {chatConfig.suggestedPrompts.map((prompt, index) => (
             <button
@@ -356,17 +359,20 @@ export default function AgentComponent() {
               onClick={() => handlePromptClick(prompt)}
               onMouseOver={() => setHoveredPromptIndex(index)}
               onMouseOut={() => setHoveredPromptIndex(null)}
+              onTouchStart={() => setHoveredPromptIndex(index)}
+              onTouchEnd={() => setHoveredPromptIndex(null)}
               disabled={isLoading}
               style={{
-                flex: "1",
-                minWidth: "0",
-                padding: "12px",
+                flex: "0 0 auto",
+                minWidth: "160px",
+                maxWidth: "220px",
+                padding: "12px 16px",
                 backgroundColor: hoveredPromptIndex === index 
                   ? (chatConfig.styling?.promptHoverBackground || "#F5F5F5")
                   : (chatConfig.styling?.promptBackground || "#FFFFFF"),
                 border: `1px solid ${chatConfig.styling?.promptBorder || "#E0E0E0"}`,
                 borderRadius: "8px",
-                fontSize: "14px",
+                fontSize: "13px",
                 textAlign: "left",
                 cursor: isLoading ? "default" : "pointer",
                 transition: "all 0.2s ease",
@@ -374,6 +380,9 @@ export default function AgentComponent() {
                   ? "0 2px 8px rgba(0,0,0,0.15)" 
                   : "0 1px 3px rgba(0,0,0,0.1)",
                 opacity: isLoading ? "0.6" : "1",
+                whiteSpace: "normal",
+                wordWrap: "break-word",
+                lineHeight: "1.4",
               }}
             >
               {prompt}
@@ -517,7 +526,7 @@ export default function AgentComponent() {
         }
         .chat-container::-webkit-scrollbar-thumb {
           background-color: #D1D5DB;
-          border-radius: 3px;
+          borderRadius: "3px";
         }
         .chat-container::-webkit-scrollbar-thumb:hover {
           background-color: #9CA3AF;
@@ -526,6 +535,12 @@ export default function AgentComponent() {
           scrollbar-width: thin;
           scrollbar-color: #D1D5DB transparent;
         }
+        
+        /* Hide scrollbar for suggested prompts on mobile */
+        div::-webkit-scrollbar {
+          display: none;
+        }
+        
         @keyframes bounce {
           0%, 80%, 100% {
             transform: scale(0);
