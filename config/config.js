@@ -5,7 +5,6 @@
 // This configuration file stores metadata and descriptions related to the Chat Agent component.
 // Updated to match the Mehak.ai portfolio chatbot design
 // =============================================================================
-
 const chatConfig = {
   flowURL:
     "https://api.zerowidth.ai/v1/process/jEtdtYF8iVXc3BdCVg0b/lD0dqGu2Gz2jNaGRXFVr",
@@ -56,5 +55,4 @@ const chatConfig = {
     autoHidePrompts: false,
   }
 };
-
 export default chatConfig;
