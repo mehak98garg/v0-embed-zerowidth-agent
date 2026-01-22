@@ -48,7 +48,7 @@ export function ChatCard({ userName = "Juan", onBackgroundChange, onResetBackgro
     setInputValue("")
   }
 
-  const handleSubmit = (message: string) => {
+  const handleSubmit = async (message: string) => {
     if (!message.trim()) return
 
     // Add user message
@@ -58,39 +58,95 @@ export function ChatCard({ userName = "Juan", onBackgroundChange, onResetBackgro
       content: message.trim(),
     }
 
-    setMessages((prev) => [...prev, userMessage])
+    const updatedMessages = [...messages, userMessage]
+    setMessages(updatedMessages)
     setInputValue("")
     setIsChatMode(true)
     setIsTyping(true)
 
-    // Simulate assistant response
-    setTimeout(() => {
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getAssistantResponse(message.trim()),
+    try {
+      // Call the RAG API with conversation history
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          messages: updatedMessages.map((msg) => ({
+            role: msg.role,
+            content: msg.content,
+          })),
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error("[v0] API error:", errorData)
+        
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: errorData.details || "I'm sorry, I encountered an error processing your request.",
+        }
+        
+        setMessages((prev) => [...prev, errorMessage])
+        setIsTyping(false)
+        return
       }
+
+      // Handle streaming response
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+      
+      // Create assistant message placeholder
+      const assistantId = (Date.now() + 1).toString()
+      const assistantMessage: Message = {
+        id: assistantId,
+        role: "assistant",
+        content: "",
+      }
+      
       setMessages((prev) => [...prev, assistantMessage])
       setIsTyping(false)
-    }, 1500)
-  }
 
-  const getAssistantResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase()
-    
-    if (lowerMessage.includes("leader") || lowerMessage.includes("collaborator")) {
-      return "I'm naturally a collaborative leader. I believe in empowering team members while providing clear direction and support. I've led several cross-functional projects where fostering open communication and shared ownership was key to our success."
+      if (!reader) {
+        throw new Error("No response stream available")
+      }
+
+      // Read the plain text stream
+      let accumulatedText = ""
+      
+      while (true) {
+        const { done, value } = await reader.read()
+        
+        if (done) break
+        
+        const chunk = decoder.decode(value, { stream: true })
+        accumulatedText += chunk
+        
+        // Update the message content in real-time
+        setMessages((prev) => 
+          prev.map((msg) => 
+            msg.id === assistantId 
+              ? { ...msg, content: accumulatedText }
+              : msg
+          )
+        )
+      }
+    } catch (error: any) {
+      console.error("[v0] Error calling RAG API:", error)
+      
+      // Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: error.message || "I'm sorry, I encountered an error processing your request. Please try again.",
+      }
+      
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
+      setIsTyping(false)
     }
-    
-    if (lowerMessage.includes("qualification") || lowerMessage.includes("education")) {
-      return "I hold a Bachelor's degree in Computer Science and have completed several professional certifications including AWS Solutions Architect and Google Cloud Professional. I've also pursued continuous learning through advanced courses in machine learning and system design."
-    }
-    
-    if (lowerMessage.includes("accomplishment") || lowerMessage.includes("achievement")) {
-      return "Recently, I architected and led the development of a scalable microservices platform that reduced system latency by 40% and improved deployment frequency from weekly to daily releases. I also mentored 5 junior engineers who have since been promoted to mid-level positions."
-    }
-    
-    return "That's a great question! I'd be happy to share more about my background and experience. Feel free to ask me about my technical skills, project experience, leadership style, or any specific areas you're curious about."
   }
 
   if (isChatMode) {
