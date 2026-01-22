@@ -1,30 +1,27 @@
-# Ignore Node.js dependencies
-node_modules/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Yarn Plug'n'Play files
-.pnp
-.pnp.js
+# dependencies
+/node_modules
 
-# Next.js build output
-.next/
-out/
+# next.js
+/.next/
+/out/
 
-# Environment variable files (keep secrets out of Git)
-.env
-.env.local
-.env.development
-.env.test
-.env.production
+# production
+/build
 
-# Log files
+# debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Editor-specific directories
-.vscode/
-.idea/
+# env files
+.env*
 
-# Operating system files
-.DS_Store
-Thumbs.db
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts

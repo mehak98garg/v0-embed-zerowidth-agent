@@ -1,4 +1,4 @@
-import chatConfig from "../../../config/config";
+// app/api/proxy/route.ts
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -15,7 +15,9 @@ export async function POST(req: Request) {
   try {
     const requestBody = await req.json();
 
-    const apiUrl = chatConfig.flowURL;
+    const apiUrl =
+      "https://api.zerowidth.ai/v1/process/jEtdtYF8iVXc3BdCVg0b/1D0dqGu2Gz2jNaGRXFVr";
+
     const bearerToken = process.env.ZEROWIDTH_API_KEY;
 
     if (!bearerToken) {
@@ -34,19 +36,26 @@ export async function POST(req: Request) {
       body: JSON.stringify(requestBody),
     });
 
-    const data = await response.json();
+    const text = await response.text();
 
-    return new Response(JSON.stringify(data), {
-      status: response.ok ? 200 : response.status,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({
+          error: `Zerowidth error ${response.status}`,
+          details: text,
+        }),
+        { status: response.status }
+      );
+    }
+
+    return new Response(text, {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     });
-  } catch (error: any) {
+  } catch (err: any) {
     return new Response(
-      JSON.stringify({ error: "Internal Server Error", details: String(error?.message || error) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      JSON.stringify({ error: "Internal Server Error", details: err?.message }),
+      { status: 500 }
     );
   }
 }
