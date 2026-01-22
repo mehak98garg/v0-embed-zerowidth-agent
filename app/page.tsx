@@ -15,10 +15,8 @@ export default function PolarLandingPage() {
   }
 
   return (
-    <main
-      className="relative flex min-h-screen flex-col items-center justify-center px-4 py-8"
-    >
-      <div className="relative z-10 flex w-full flex-col items-center">
+    <main className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+      <div className="flex w-full flex-col items-center">
         <ChatCard userName="Juan" onBackgroundChange={setBackgroundImage} onResetBackground={handleResetBackground} />
       </div>
     </main>
